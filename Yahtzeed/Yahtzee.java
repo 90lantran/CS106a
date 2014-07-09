@@ -22,8 +22,13 @@ public class Yahtzee extends GraphicsProgram implements YahtzeeConstants {
 			playerNames[i - 1] = dialog.readLine("Enter name for player " + i);
 		}
 		display = new YahtzeeDisplay(getGCanvas(), playerNames);
+
+		countAlready = new boolean[nPlayers][N_CATEGORIES];
+		score = new int[N_CATEGORIES][nPlayers];
+
 		playGame();
 	}
+
 
 	private void playGame() {
 		/* You fill this in */
@@ -45,8 +50,47 @@ public class Yahtzee extends GraphicsProgram implements YahtzeeConstants {
 
 			} //end of each player turn 
 		}
+
+		// calculate total
+		calcualteTotal();
+		printWinner();
+
+	}
+	private void printWinner(){
+		int winner = 0; // index of the winner
+		for (int i = 0; i < nPlayers ; i ++){
+			if (score[TOTAL-1][winner] < score[TOTAL-1][i]){
+				winner = i;
+			}
+		}
+		display.printMessage("Congrat to "+ playerNames[winner]+ ".You are the winner with "+
+				score[TOTAL-1][winner]+" score.");
+		
 	}
 
+	private void calcualteTotal(){
+		for (int player = 0; player < nPlayers ; player ++){
+
+			score[UPPER_SCORE -1][player]= score[ONES-1][player]+score[TWOS-1][player]+
+			score[THREES-1][player]+score[FOURS-1][player]+
+			score[FIVES-1][player]+score[SIXES-1][player];
+			if (score[UPPER_SCORE -1][player] > 63){
+				score[UPPER_BONUS -1][player] = 35;
+			}else{
+				score[UPPER_BONUS -1][player] = 0;
+			}
+			for(int i = THREE_OF_A_KIND; i <= CHANCE; i++){
+				score[LOWER_SCORE-1][player] += score[i-1][player]; 
+			}
+			score[TOTAL-1][player] = score[LOWER_SCORE-1][player] + score[UPPER_SCORE -1][player]+score[UPPER_BONUS -1][player];
+			
+			display.updateScorecard(UPPER_SCORE, player+1, score[UPPER_SCORE-1][player]);
+			display.updateScorecard(UPPER_BONUS, player+1, score[UPPER_BONUS-1][player]);
+			display.updateScorecard(LOWER_SCORE, player+1, score[LOWER_SCORE-1][player]);
+			display.updateScorecard(TOTAL, player+1, score[TOTAL-1][player]);
+
+		}
+	}
 	private void reroll(){
 		// reroll
 		for (int j = 0; j < 2 ; j++){
@@ -65,15 +109,16 @@ public class Yahtzee extends GraphicsProgram implements YahtzeeConstants {
 		boolean answer = checkDiceStatus(category, dice,player);
 		while (true){
 			if (answer == true && countAlready[player -1][category-1] == false){ // chose correctly for first time
-				
+
 				countAlready[player -1][category-1] = true;
 				//display.printMessage("WELL");
-				display.updateScorecard(category, player, earningPoint);
+				display.updateScorecard(category, player, score[category-1][player -1]);
 				break;
 			}else if (answer == true && countAlready[player -1][category -1]== true){ // chose correctly more than one
 				display.printMessage("You select this category more than one. Select another category.");
 				category = display.waitForPlayerToSelectCategory();
 			}else {
+				countAlready[player -1][category-1] = true;
 				display.printMessage("You select the wrong category.You earn 0 score.");
 				display.updateScorecard(category, player, 0);
 				break;
@@ -85,18 +130,16 @@ public class Yahtzee extends GraphicsProgram implements YahtzeeConstants {
 	// in YahtzeeConstants)
 	private boolean checkDiceStatus(int category, int[] dice, int player){
 		if (category == ONES){			
-			if (numOfRepetition1(ONES) != 0){
-				//earningPoint = numOfRepetition1(ONES)*ONES;
-				score[ONES-1][player-1] = numOfRepetition1(ONES)*ONES;;
-				
+			if (numOfRepetition1(ONES) != 0){				
+				score[ONES-1][player-1] = numOfRepetition1(ONES)*ONES;
 				return true;
 			}else{
 				return false;
 			}			
 		}else if (category == TWOS){
 			if (numOfRepetition1(TWOS) != 0){
-				earningPoint = numOfRepetition1(TWOS)*TWOS;
 				
+				score[TWOS-1][player-1] = numOfRepetition1(TWOS)*TWOS;
 				return true;
 			}else{
 				return false;
@@ -104,40 +147,40 @@ public class Yahtzee extends GraphicsProgram implements YahtzeeConstants {
 
 		}else if (category == THREES){
 			if (numOfRepetition1(THREES) != 0){
-				earningPoint = numOfRepetition1(THREES)*THREES;
-				
+				//earningPoint = numOfRepetition1(THREES)*THREES;
+				score[THREES-1][player-1] = numOfRepetition1(THREES)*THREES;
 				return true;
 			}else{
 				return false;
 			}		
 		}else if (category == FOURS){
 			if (numOfRepetition1(FOURS) != 0){
-				earningPoint = numOfRepetition1(FOURS)*FOURS;
-				
+				//earningPoint = numOfRepetition1(FOURS)*FOURS;
+				score[FOURS-1][player-1] = numOfRepetition1(FOURS)*FOURS;
 				return true;
 			}else{
 				return false;
 			}		
 		}else if (category == FIVES){
 			if (numOfRepetition1(FIVES) != 0){
-				earningPoint = numOfRepetition1(FIVES)*FIVES;
-				
+				//earningPoint = numOfRepetition1(FIVES)*FIVES;
+				score[FIVES-1][player-1] = numOfRepetition1(FIVES)*FIVES;
 				return true;
 			}else{
 				return false;
 			}		
 		}else if (category == SIXES){
 			if (numOfRepetition1(SIXES) != 0){
-				earningPoint = numOfRepetition1(SIXES)*SIXES;
-				
+				//earningPoint = numOfRepetition1(SIXES)*SIXES;
+				score[SIXES-1][player-1] = numOfRepetition1(SIXES)*SIXES;
 				return true;
 			}else{
 				return false;
 			}		
 		}else if (category == THREE_OF_A_KIND){//9
 			if (numOfRepetition2()== 6){
-				earningPoint = sumOfDice();
-			
+				//earningPoint = sumOfDice();
+				score[THREE_OF_A_KIND-1][player-1] = sumOfDice();
 				return true;
 			}else{
 				return false;
@@ -145,47 +188,47 @@ public class Yahtzee extends GraphicsProgram implements YahtzeeConstants {
 
 		}else if (category == FOUR_OF_A_KIND ){//10
 			if (numOfRepetition2()== 12){
-				earningPoint = sumOfDice();
-				
+				//earningPoint = sumOfDice();
+				score[FOUR_OF_A_KIND-1][player-1] = sumOfDice();
 				return true;
 			}else{
 				return false;
 			}
 		}else if (category == FULL_HOUSE){//11
 			if (numOfRepetition2()== 8){
-				earningPoint = 25;
-			
+				//earningPoint = 25;
+				score[FULL_HOUSE-1][player-1] = 25;
 				return true;
 			}else{
 				return false;
 			}
 		}else if (category == SMALL_STRAIGHT){//12
 			if ((numOfRepetition2()== 0) || (numOfRepetition2()== 2 && (min() == 1 || min() == 2))){
-				earningPoint = 30;
-				
+				//earningPoint = 30;
+				score[SMALL_STRAIGHT-1][player-1] = 30;
 				return true;
 			}else{
 				return false;
 			}
 		}else if (category == LARGE_STRAIGHT){//13
 			if (numOfRepetition2()== 0){
-				earningPoint = 40;
-			
+				//earningPoint = 40;
+				score[LARGE_STRAIGHT-1][player-1] = 40;
 				return true;
 			}else{
 				return false;
 			}
 		}else if (category == YAHTZEE){//14
 			if (numOfRepetition2()== 20){
-				earningPoint = 50;
-				
+				//earningPoint = 50;
+				score[YAHTZEE-1][player-1] = 50;
 				return true;
 			}else{
 				return false;
 			}
 		}else if (category == CHANCE){//15
-			earningPoint = sumOfDice();
-			//countAlready[CHANCE-1]= true;
+			//earningPoint = sumOfDice();
+			score[CHANCE-1][player-1] = sumOfDice();			
 			return true;
 		}else{
 			return false;
@@ -253,7 +296,7 @@ public class Yahtzee extends GraphicsProgram implements YahtzeeConstants {
 	private RandomGenerator rgen = new RandomGenerator();
 	private int[] dice = new int[N_DICE];
 	private int category;
-	private int earningPoint;
-	private boolean[][] countAlready = new boolean[2][17];
-	private int[][] score = new int[17][2];
+	//private int earningPoint;
+	private boolean[][] countAlready ;
+	private int[][] score ;
 }
