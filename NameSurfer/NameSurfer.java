@@ -20,7 +20,7 @@ public class NameSurfer extends ConsoleProgram{
 	
 	public void actionPerformed(ActionEvent e){
 		if(e.getSource()== graph){
-			println("Graph: " + textField.getText());
+			println("Graph: " + "\"" +textField.getText()+"\"");
 		}else if (e.getSource() == clear){
 			//removeAll();
 			println("Clear");
