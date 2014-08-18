@@ -33,14 +33,9 @@ public class NameSurferEntry implements NameSurferConstants {
 				rankStart = rankEnd;
 			}catch(IndexOutOfBoundsException e){
 				String lastRank = line.substring(rankStart+1);
-				rank[i] = Integer.parseInt(lastRank);
-				
+				rank[i] = Integer.parseInt(lastRank);				
 			}
-
 		}
-
-
-
 	}
 	
 	/**
@@ -69,16 +64,17 @@ public class NameSurferEntry implements NameSurferConstants {
 	 * Returns a string that makes it easy to see the value of a
 	 * NameSurferEntry.
 	 */
+//	public int[] getNumData(){
+//		return rank;
+//	}
 	public String toString() {
 		// You need to turn this stub into a real implementation //
 		return (this.getName()+" "+"["+ rank[0] +" "+rank[1] +" "+rank[2] +" "+rank[3] +" "
 				+rank[4] +" "+rank[5] +" "+rank[6] +" "+rank[7] +" "+rank[8] +" "+
 				rank[9] + " " +rank[10]+"]");
 	}
-
 	private String name;
 	private int[] rank;
-
 
 }
 
