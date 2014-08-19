@@ -6,6 +6,8 @@
  */
 
 import acm.graphics.*;
+
+import java.awt.Color;
 import java.awt.event.*;
 import java.util.ArrayList;
 
@@ -16,14 +18,17 @@ implements NameSurferConstants, ComponentListener {
 	private ArrayList<NameSurferEntry> data = new ArrayList<NameSurferEntry>();
 	private GPoint[] points =  new GPoint[11]; 
 	private double spaces ;
+	private Color[] colors = new Color[4];
 	/**
 	 * Creates a new NameSurferGraph object that displays the data.
 	 */
 	public NameSurferGraph() {
 		addComponentListener(this);
 		// You fill in the rest //
-
-
+		colors[0] = Color.BLACK;
+		colors[1] = Color.RED;
+		colors[2] = Color.BLUE;
+		colors[3] = Color.MAGENTA;
 	}
 
 
@@ -61,25 +66,30 @@ implements NameSurferConstants, ComponentListener {
 		double x3 = x1;
 		double y3 = y2;
 		GLine secondVerticalLine = new GLine(x2,y2,x3,y3);
-		
+
 		add(firstVerticalLine);
 		add(secondVerticalLine);
 	}
 
 	private void drawData(){
 		double spaces = (double)getWidth()/NDECADES;
+		int colorIndex = 0;
+		
 		if (!data.isEmpty()){
 			for(NameSurferEntry item:data){
 				String name = item.getName();
 				//int[] ranks = item.getNumData();
+				
 				for (int i = 0; i < 11; i++){
 					int ranking = item.getRank(i);
+					
 					if (ranking != 0){
 						double x = i*spaces;
 						double y = GRAPH_MARGIN_SIZE+(getHeight()- 2*GRAPH_MARGIN_SIZE)*ranking/1000.0;
-						GLabel label = new GLabel(name);
+						GLabel label = new GLabel(name +" "+ ranking);
+						label.setColor(colors[colorIndex]);
 						add(label,x,y);
-						
+
 						GPoint point = new GPoint(x,y);
 						//points =;
 						points[i] = point;
@@ -87,28 +97,33 @@ implements NameSurferConstants, ComponentListener {
 					}else{
 						double x = i*spaces;
 						double y = getHeight()- GRAPH_MARGIN_SIZE;
-						
+
 						GLabel label = new GLabel(name+"*");
+						label.setColor(colors[colorIndex]);
 						add(label,x,y);
-						
+
 						GPoint point = new GPoint(x,y);
 						points[i] = point;
 					}
 					
-				}
-				connectPoints();
-				
-				
+					
 
+				}
+				connectPoints(colorIndex);
+				colorIndex++;
+				if (colorIndex > 3) colorIndex = colorIndex%4;
+				
 			}
 		}
 
 	}
-	
-	private void connectPoints(){
+
+	private void connectPoints(int index){
 		for (int i=0; i < points.length-1;i++){
-			
-			GLine segment = new GLine(points[i].getX(),points[i].getY(),points[i+1].getX(),points[i+1].getY());
+
+			GLine segment = new GLine(points[i].getX(),points[i].getY(),
+					points[i+1].getX(),points[i+1].getY());
+			segment.setColor(colors[index]);
 			add(segment);
 		}
 	}
